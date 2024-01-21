@@ -9,7 +9,10 @@ public class Pathfind {
 	public static void moveTowards(RobotController rc, MapLocation loc) throws GameActionException {
 		//if can move towards location, move towards location
 		Direction dir = rc.getLocation().directionTo(loc);
+		
 		if(rc.canMove(dir)) rc.move(dir);
+		else if(rc.canMove(dir.rotateLeft())) rc.move(dir.rotateLeft());
+		else if(rc.canMove(dir.rotateRight())) rc.move(dir.rotateRight());
 		else if(rc.canFill(rc.getLocation().add(dir))) rc.fill(rc.getLocation().add(dir));
 		else {
 			Direction randomDir = Direction.allDirections()[RobotPlayer.random.nextInt(8)];
