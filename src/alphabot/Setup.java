@@ -10,13 +10,13 @@ public class Setup {
 		
 		if(rc.getRoundNum() < EXPLORE_ROUNDS) {
 			//pickup flag if possible
-			FlagInfo[] flags = rc.senseNearbyFlags(-1, rc.getTeam());
-			for(FlagInfo flag : flags) {
-				if(rc.canPickupFlag(flag.getLocation())) {
-					rc.pickupFlag(flag.getLocation());
-					break;
-				}
-			}
+//			FlagInfo[] flags = rc.senseNearbyFlags(-1, rc.getTeam());
+//			for(FlagInfo flag : flags) {
+//				if(rc.canPickupFlag(flag.getLocation())) {
+//					rc.pickupFlag(flag.getLocation());
+//					break;
+//				}
+//			}
 			
 			//explore randomly
 			Pathfind.explore(rc);

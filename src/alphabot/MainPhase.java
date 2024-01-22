@@ -37,13 +37,20 @@ public class MainPhase{
 			//if we dont have a flag, find closest enemy flag (including broadcast locations)
 			ArrayList<MapLocation> flagLocs = new ArrayList<>();
 			FlagInfo[] enemyFlags = rc.senseNearbyFlags(-1, rc.getTeam().opponent());
-			for(FlagInfo flag: enemyFlags) flagLocs.add(flag.getLocation());
+			for(FlagInfo flag: enemyFlags) {
+				//dont bother the ducks running back with their flags
+				//if(!flag.isPickedUp()) flagLocs.add(flag.getLocation());
+				flagLocs.add(flag.getLocation());
+
+			}
 			if(flagLocs.size() == 0) {
 				MapLocation[] broadcastLocs = rc.senseBroadcastFlagLocations();
 				for(MapLocation flagLoc : broadcastLocs) flagLocs.add(flagLoc);
 			}
+			
 			//if we found a closest enemy flag, move towards and try to pick it up
 			MapLocation closestFlag = findClosestLocation(rc.getLocation(), flagLocs);
+			
 			if(closestFlag != null) {
 				Pathfind.moveTowards(rc, closestFlag);
 				if(rc.canPickupFlag(closestFlag)) rc.pickupFlag(closestFlag);

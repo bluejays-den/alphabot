@@ -13,6 +13,7 @@ public class RobotPlayer {
     static int turnCount = 0;
     //We will use this RNG to make some random moves. 
     public static Random random = null;
+   
 
     // Array containing all the possible movement directions.
     static final Direction[] directions = {
