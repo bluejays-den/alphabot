@@ -83,6 +83,7 @@ public class Pathfind {
 			rc.move(bugDir);
 		} else {
 			for(int i = 0; i < 8; i++) {
+				if(rc.canFill(rc.getLocation().add(bugDir))) rc.fill(rc.getLocation().add(bugDir));
 				if(rc.canMove(bugDir)) {
 					rc.move(bugDir);
 					break;
