@@ -36,10 +36,11 @@ public class Pathfind {
 			}
 		} else {
 			while(stuck) {
-				dir = dir.rotateLeft();
 				if(!rc.getLocation().add(dir).equals(lastLoc) && rc.canMove(dir)) {
 					rc.move(dir);
 					stuck = false;
+				} else {
+					dir = dir.rotateLeft();
 				}
 			}
 		}

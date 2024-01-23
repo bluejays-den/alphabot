@@ -28,13 +28,13 @@ public class MainPhase{
 		
 		for(RobotInfo robot : nearbyEnemies) {
 			if(robot.hasFlag()) {
-				Pathfind.moveAround(rc,robot.getLocation());
+				Pathfind.bugNavZero(rc,robot.getLocation());
 				if(rc.canAttack(robot.getLocation())) rc.attack(robot.getLocation());
 			}
 		}
 		
 		for(RobotInfo robot: nearbyEnemies) {
-			Pathfind.moveAround(rc,robot.getLocation());
+			Pathfind.bugNavZero(rc,robot.getLocation());
 			if(rc.canAttack(robot.getLocation())) rc.attack(robot.getLocation());
 		}
 		
@@ -47,7 +47,7 @@ public class MainPhase{
 		if(!rc.hasFlag()) {
 			for(RobotInfo robot : nearbyFriends) {
 				if(robot.hasFlag()) {
-					Pathfind.moveAround(rc , findClosestLocation(rc.getLocation(), enemyLocs));
+					Pathfind.bugNavZero(rc , findClosestLocation(rc.getLocation(), enemyLocs));
 					if(rc.canAttack(robot.getLocation())) rc.attack(robot.getLocation());
 				}
 			}
@@ -73,7 +73,7 @@ public class MainPhase{
 			MapLocation closestFlag = findClosestLocation(rc.getLocation(), flagLocs);
 			
 			if(closestFlag != null) {
-				Pathfind.moveAround(rc, closestFlag);
+				Pathfind.bugNavZero(rc, closestFlag);
 				if(rc.canPickupFlag(closestFlag)) rc.pickupFlag(closestFlag);
 			}
 			//if there is no flag to capture, explore randomly
@@ -82,7 +82,7 @@ public class MainPhase{
 			//if we have flag, move towards closest allyl spawn zone
 			MapLocation[] spawnLocs = rc.getAllySpawnLocations();
 			MapLocation closestSpawn = findClosestLocation(rc.getLocation(),Arrays.asList(spawnLocs));
-			Pathfind.moveAround(rc, closestSpawn);
+			Pathfind.bugNavZero(rc, closestSpawn);
 		}
 	}
 	
