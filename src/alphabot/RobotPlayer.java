@@ -34,10 +34,16 @@ public class RobotPlayer {
     	
         while (true) {
             try {
-            	if(random == null) random = new Random(rc.getID());
+            	//spawn in one bot first to better see bot behavior
+            	if(rc.readSharedArray(0) == 0) {
+            		rc.writeSharedArray(0, rc.getID());
+            	}
+            	if(rc.readSharedArray(0) == rc.getID()) trySpawn(rc);
             	
-               trySpawn(rc);
-               if(rc.isSpawned()) {
+            	if(random == null) random = new Random(rc.getID());
+            	//regular spawn
+            	trySpawn(rc);
+            	if(rc.isSpawned()) {
             	   //check round num and call setupt / main phase logic
             	   int round = rc.getRoundNum();
             	   if(round <= GameConstants.SETUP_ROUNDS) Setup.runSetup(rc);
