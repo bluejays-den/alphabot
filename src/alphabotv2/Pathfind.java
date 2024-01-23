@@ -1,4 +1,4 @@
-package alphabot;
+package alphabotv2;
 
 import battlecode.common.*;
 
@@ -9,26 +9,32 @@ public class Pathfind {
 	public static MapLocation lastLoc;
 	public static boolean stuck = false;
 
+
 	
 	public static void moveTowards(RobotController rc, MapLocation loc) throws GameActionException {
 		Direction dir = rc.getLocation().directionTo(loc);
 		if(!stuck) {
+			//can maybe be more conservative on fills to reduce byte code
 			if(rc.canMove(dir)) rc.move(dir);
 			else if(rc.canFill(rc.getLocation().add(dir))) rc.fill(rc.getLocation().add(dir));
 			else if(rc.canMove(dir.rotateLeft())) rc.move(dir.rotateLeft());
 			else if(rc.canMove(dir.rotateRight())) rc.move(dir.rotateRight());
+			else if(rc.canFill(rc.getLocation().add(dir.rotateLeft()))) rc.fill(rc.getLocation().add(dir.rotateLeft()));
+			else if(rc.canFill(rc.getLocation().add(dir.rotateRight()))) rc.fill(rc.getLocation().add(dir.rotateRight()));
 			else {
 				stuck = true;
 			}
-		} else {
-			while(stuck) {
-				dir = dir.rotateLeft();
-				if(!rc.getLocation().add(dir).equals(lastLoc) && rc.canMove(dir)) {
+		} 
+		for (int i = 0; i < 5; i++) {
+			dir = dir.rotateLeft();
+			if (!rc.getLocation().add(dir).equals(lastLoc)){
+				if (rc.canMove(dir)){
 					rc.move(dir);
 					stuck = false;
 				}
 			}
 		}
+		
 		
 		lastLoc = rc.getLocation();
 		//if can move towards location, move towards location
@@ -44,13 +50,37 @@ public class Pathfind {
 //		}
 	}
 
-	public static void moveTowardsGreedy(RobotController rc, MapLocation loc) throws GameActionException{
+	public static void moveTowardsWithFlag(RobotController rc, MapLocation loc) throws GameActionException {
+		Direction dir = rc.getLocation().directionTo(loc);
+		if(!stuck) {
+			//can maybe be more conservative on fills to reduce byte code
+			if(rc.canMove(dir)) rc.move(dir);
+			else if(rc.canFill(rc.getLocation().add(dir))) rc.fill(rc.getLocation().add(dir));
+			else if(rc.canMove(dir.rotateLeft())) rc.move(dir.rotateLeft());
+			else if(rc.canMove(dir.rotateRight())) rc.move(dir.rotateRight());
+			else if(rc.canFill(rc.getLocation().add(dir.rotateLeft()))) rc.fill(rc.getLocation().add(dir.rotateLeft()));
+			else if(rc.canFill(rc.getLocation().add(dir.rotateRight()))) rc.fill(rc.getLocation().add(dir.rotateRight()));
+			else {
+				stuck = true;
+			}
+		} 
+		for (int i = 0; i < 5; i++) {
+			dir = dir.rotateLeft();
+			if (!rc.getLocation().add(dir).equals(lastLoc)){
+				if (rc.canMove(dir)){
+					rc.move(dir);
+				}
+				else if (rc.canDropFlag(rc.getLocation().add(dir))){
+					rc.dropFlag(rc.getLocation().add(dir));
+				}
+				stuck = false;
+			}
+		}
 		
+		
+		lastLoc = rc.getLocation();
 	}
 
-	public static int otherDistance(MapLocation m1, MapLocation m2){
-		return (Math.max(Math.abs(m1.x-m2.x),Math.abs(m1.y-m2.y)));
-	}
 	
 	public static void explore(RobotController rc) throws GameActionException{
 		//try to move towards crumbs, otherwise move in current direction 
@@ -69,27 +99,6 @@ public class Pathfind {
 			}
 		}
 	}
-	
-	//bugNavZero traces around obstacle until can move foreward, can get stuck in cycle
-	public static void bugNavZero(RobotController rc, MapLocation destination) throws GameActionException{
-		Direction bugDir = rc.getLocation().directionTo(destination);
-		
-		if(rc.canMove(bugDir)) {
-			rc.move(bugDir);
-		} else {
-			for(int i = 0; i < 8; i++) {
-				if(rc.canMove(bugDir)) {
-					rc.move(bugDir);
-					break;
-				} else {
-					bugDir = bugDir.rotateLeft();
-				}
-			}
-		}
-	}
-	
-	
-	
-	
+
 	
 }
