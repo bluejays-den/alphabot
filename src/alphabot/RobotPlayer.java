@@ -27,6 +27,11 @@ public class RobotPlayer {
         Direction.NORTHWEST,
     };
     
+    //variables for bugNavOne
+    private int bugState = 0;
+    private MapLocation closestObstacle = null;
+    private int closestObstacleDistance = 10000;
+    
     
     @SuppressWarnings("unused")
     public static void run(RobotController rc) throws GameActionException {
@@ -41,7 +46,7 @@ public class RobotPlayer {
             	if(rc.readSharedArray(0) == rc.getID()) trySpawn(rc);
             	
             	if(random == null) random = new Random(rc.getID());
-            	//regular spawn
+            	//regular spawn comment out if want to test one duck
             	trySpawn(rc);
             	if(rc.isSpawned()) {
             	   //check round num and call setupt / main phase logic

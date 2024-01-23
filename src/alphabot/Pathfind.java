@@ -61,4 +61,27 @@ public class Pathfind {
 			}
 		}
 	}
+	
+	//bugNavZero traces around obstacle until can move foreward, can get stuck in cycle
+	public static void bugNavZero(RobotController rc, MapLocation destination) throws GameActionException{
+		Direction bugDir = rc.getLocation().directionTo(destination);
+		
+		if(rc.canMove(bugDir)) {
+			rc.move(bugDir);
+		} else {
+			for(int i = 0; i < 8; i++) {
+				if(rc.canMove(bugDir)) {
+					rc.move(bugDir);
+					break;
+				} else {
+					bugDir = bugDir.rotateLeft();
+				}
+			}
+		}
+	}
+	
+	
+	
+	
+	
 }
