@@ -46,6 +46,10 @@ public class RobotPlayer {
             	if(rc.readSharedArray(0) == rc.getID()) trySpawn(rc);
             	
             	if(random == null) random = new Random(rc.getID());
+            	
+            	if(!rc.isSpawned()) {
+            		Pathfind.resetBug();
+            	}
             	//regular spawn comment out if want to test one duck
             	trySpawn(rc);
             	if(rc.isSpawned()) {

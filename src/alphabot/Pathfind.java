@@ -1,6 +1,7 @@
 package alphabot;
 
 import battlecode.common.*;
+import java.util.*;
 
 public class Pathfind {
 	
@@ -74,11 +75,93 @@ public class Pathfind {
 			}
 		}
 	}
+	private static int bugState = 0;
+	private static MapLocation closestObstacle = null;
+	private static int closestObstacleDist = 10000;
+	private static Direction bugDir = null;
+	public static void resetBug() {
+		bugState = 0;
+		closestObstacle = null;
+		closestObstacleDist = 10000;
+		bugDir = null;
+	}
+	private static HashSet<MapLocation> line = null;
+	private static int obstacleStartDist = 0;
+	private static MapLocation prevDest = null;
+	
+	
+	public static void bugNavTwo(RobotController rc, MapLocation destination) throws GameActionException{
+		if(!destination.equals(prevDest)) {
+			prevDest = destination;
+			line = createLine(rc.getLocation(), destination);
+		}
+		
+		for(MapLocation loc: line) {
+			rc.setIndicatorDot(loc, 255,0,0);
+		}
+		
+		if(bugState == 0) {
+			Direction bugDir = rc.getLocation().directionTo(destination);
+			if(rc.canMove(bugDir)) {
+				rc.move(bugDir);
+			} else {
+				bugState = 1;
+				obstacleStartDist = rc.getLocation().distanceSquaredTo(destination);
+				bugDir = rc.getLocation().directionTo(destination);
+			}
+		} else {			
+			if(line.contains(rc.getLocation()) && rc.getLocation().distanceSquaredTo(destination) < obstacleStartDist) {
+				bugState = 0;
+			}
+			
+			for(int i = 0; i < 8; i++) {
+				if(rc.canMove(bugDir)) {
+					rc.move(bugDir);
+					bugDir = bugDir.rotateRight();
+				} else {
+					bugDir = bugDir.rotateLeft();
+				}
+			}
+		}
+	}
+
+	
+	
+	public static void bugNavOne(RobotController rc, MapLocation destination) throws GameActionException{
+		if(bugState == 0) {
+			Direction bugDir = rc.getLocation().directionTo(destination);
+			if(rc.canMove(bugDir)) {
+				rc.move(bugDir);
+			} else {
+				bugState = 1;
+				closestObstacle = null;
+				closestObstacleDist = 10000;
+			}
+		} else {
+			if(rc.getLocation().equals(closestObstacle)) {
+				bugState = 0;
+			}
+			
+			if(rc.getLocation().distanceSquaredTo(destination) < closestObstacleDist) {
+				closestObstacleDist = rc.getLocation().distanceSquaredTo(destination);
+				closestObstacle = rc.getLocation();
+			}
+			
+			for(int i = 0; i < 8; i++) {
+				if(rc.canMove(bugDir)) {
+					rc.move(bugDir);
+					bugDir = bugDir.rotateRight();
+				} else {
+					bugDir = bugDir.rotateLeft();
+				}
+			}
+		}
+	}
+	
 	
 	//bugNavZero traces around obstacle until can move foreward, can get stuck in cycle
 	public static void bugNavZero(RobotController rc, MapLocation destination) throws GameActionException{
 		Direction bugDir = rc.getLocation().directionTo(destination);
-		
 		if(rc.canMove(bugDir)) {
 			rc.move(bugDir);
 		} else {
@@ -94,7 +177,46 @@ public class Pathfind {
 		}
 	}
 	
-	
+	//converts line until maplocations, dont need to know what the fuck happens
+	private static HashSet<MapLocation> createLine(MapLocation a, MapLocation b){
+		HashSet<MapLocation> locs = new HashSet<>();
+		int x = a.x, y=a.y;
+		int dx = b.x - a.x;
+		int dy = b.y - a.y;
+		int sx = (int) Math.signum(dx);
+		int sy = (int) Math.signum(dy);
+		dx = Math.abs(dx);
+		dy = Math.abs(dy);
+		int d = Math.max(dx, dy);
+		int r = d/2;
+		if (dx > dy) {
+			for (int i = 0; i < d; i++) {
+				locs.add(new MapLocation(x,y));
+				x += sx;
+				r += dy;
+				if (r >= dx) {
+					locs.add(new MapLocation(x,y));
+					y += sy;
+					r -= dx;
+				}
+				
+			}
+		} else {
+			for(int i = 0; i < d; i++) {
+				locs.add(new MapLocation(x,y));
+				y += sy;
+				r += dx;
+				if(r  >= dy) {
+					locs.add(new MapLocation(x,y));
+					x += sx;
+					r -= dy;
+				}
+			}
+		}
+		locs.add(new MapLocation(x, y));
+		return locs;
+		
+	}
 	
 	
 	
