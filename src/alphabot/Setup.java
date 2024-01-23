@@ -9,16 +9,6 @@ public class Setup {
 	public static void runSetup(RobotController rc) throws GameActionException {
 		
 		if(rc.getRoundNum() < EXPLORE_ROUNDS) {
-			//pickup flag if possible
-//			FlagInfo[] flags = rc.senseNearbyFlags(-1, rc.getTeam());
-//			for(FlagInfo flag : flags) {
-//				if(rc.canPickupFlag(flag.getLocation())) {
-//					rc.pickupFlag(flag.getLocation());
-//					break;
-//				}
-//			}
-			
-			//explore randomly
 			Pathfind.explore(rc);
 		} else {
 			//try to place flag if it is far enough away from other flags
