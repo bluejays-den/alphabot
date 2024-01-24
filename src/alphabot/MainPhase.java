@@ -7,10 +7,10 @@ public class MainPhase{
 	
 	public static void runMainPhase(RobotController rc) throws GameActionException {
 		//try to buy action and capturing upgrades
-		if(rc.canBuyGlobal(GlobalUpgrade.HEALING)) {
-			rc.buyGlobal(GlobalUpgrade.HEALING);
-		} if(rc.canBuyGlobal(GlobalUpgrade.ACTION)) {
+		if(rc.canBuyGlobal(GlobalUpgrade.ACTION)) {
 			rc.buyGlobal(GlobalUpgrade.ACTION);
+		} if(rc.canBuyGlobal(GlobalUpgrade.HEALING)) {
+			rc.buyGlobal(GlobalUpgrade.HEALING);
 		}
 		
 		
