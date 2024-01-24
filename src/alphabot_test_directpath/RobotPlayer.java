@@ -63,15 +63,15 @@ public class RobotPlayer {
             	if(random == null) random = new Random(rc.getID());
             	
             	if(rc.isSpawned() && ducknum == 1) {
-            		Pathfind.bugNavOne(rc, goal);     		
+            		Pathfind.bugNavTwo(rc, goal);     		
             	}
             	
             	if(rc.isSpawned() && ducknum == 2) {
-            		Pathfind.bugNavOne(rc, goal);     		
+            		Pathfind.bugNavTwo(rc, goal);     		
             	}
 
             	if(rc.isSpawned() && ducknum == 3) {
-            		Pathfind.bugNavOne(rc, goal);     		
+            		Pathfind.bugNavTwo(rc, goal);     		
             	}
 
             	
