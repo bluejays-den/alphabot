@@ -86,8 +86,8 @@ public class Pathfind {
 		bugDir = null;
 	}
 	private static HashSet<MapLocation> line = null;
-	private static int obstacleStartDist = 0;
 	private static MapLocation prevDest = null;
+	private static int obstacleStartDist = 0;
 	
 	
 	public static void bugNavTwo(RobotController rc, MapLocation destination) throws GameActionException{
@@ -103,7 +103,7 @@ public class Pathfind {
 		if(bugState == 0) {
 			bugDir = rc.getLocation().directionTo(destination);
 			if(rc.canMove(bugDir)) {
-				rc.move(bugDir);
+				rc.move(bugDir);  
 			} else {
 				bugState = 1;
 				obstacleStartDist = rc.getLocation().distanceSquaredTo(destination);
@@ -114,10 +114,12 @@ public class Pathfind {
 				bugState = 0;
 			}
 			
-			for(int i = 0; i < 8; i++) {
+			for(int i = 0; i < 9; i++) {
 				if(rc.canMove(bugDir)) {
 					rc.move(bugDir);
 					bugDir = bugDir.rotateRight();
+					bugDir = bugDir.rotateRight();
+					break;
 				} else {
 					bugDir = bugDir.rotateLeft();
 				}
