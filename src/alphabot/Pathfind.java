@@ -82,8 +82,14 @@ public class Pathfind {
 		MapLocation prevDest = null;
 		obstacleStartDist = 0;
 	}
-	public static void bugNavTwo(RobotController rc, MapLocation destination) throws GameActionException{
-		boolean left = isLeft(rc, destination);
+	public static void bugNavTwo(RobotController rc, MapLocation destination, boolean left) throws GameActionException{
+		if(left) {
+			rc.setIndicatorString("turning left");
+
+		} else {
+			rc.setIndicatorString("turning right");
+
+		}
 		if(!destination.equals(prevDest)) {
 			prevDest = destination;
 			line = createLine(rc.getLocation(), destination);

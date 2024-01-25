@@ -13,6 +13,7 @@ public class MainPhase{
 		} if(rc.canBuyGlobal(GlobalUpgrade.HEALING)) {
 			rc.buyGlobal(GlobalUpgrade.HEALING);
 		}
+		boolean left = true;
 
 
 		//attack enemies, prioitizing enemies that have your flag
@@ -46,12 +47,12 @@ public class MainPhase{
 		
 		
 		if(!rc.hasFlag()) {
-			for(RobotInfo robot : nearbyFriends) {
-				if(robot.hasFlag()) {
-					Pathfind.bugNavZero(rc , findClosestLocation(rc.getLocation(), enemyLocs));
-					if(rc.canAttack(robot.getLocation())) rc.attack(robot.getLocation());
-				}
-			}
+//			for(RobotInfo robot : nearbyFriends) {
+//				if(robot.hasFlag()) {
+//					Pathfind.bugNavZero(rc , findClosestLocation(rc.getLocation(), enemyLocs));
+//					if(rc.canAttack(robot.getLocation())) rc.attack(robot.getLocation());
+//				}
+//			}
 
 			
 			
@@ -78,17 +79,22 @@ public class MainPhase{
 				if(rc.canPickupFlag(closestFlag)) rc.pickupFlag(closestFlag);
 				MapLocation[] spawnLocs = rc.getAllySpawnLocations();
 				spawnFirst = findClosestLocation(rc.getLocation(),Arrays.asList(spawnLocs));
+				left = isLeft(rc, spawnFirst);
+
 				
 			}
 			//if there is no flag to capture, explore randomly
 			Pathfind.explore(rc);
 		} else {
 			//if we have flag, move towards closest allyl spawn zone
-			Pathfind.bugNavTwo(rc, spawnFirst);
+			Pathfind.bugNavTwo(rc, spawnFirst, left);
 		}
 	}
 	
-	
+	public static boolean isLeft(RobotController rc, MapLocation destination) {
+		return (destination.x - rc.getLocation().x)*(rc.getMapHeight()/2 - rc.getLocation().y) - (destination.y - rc.getLocation().y)*(rc.getMapWidth()/2 - rc.getLocation().x) > 0;
+	}
+
 	
 	public static MapLocation findClosestLocation(MapLocation me, List<MapLocation> otherLocs) {
 		MapLocation closest = null;
