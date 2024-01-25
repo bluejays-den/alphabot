@@ -22,6 +22,8 @@ public class Communication {
 
                 if(rc.canWriteSharedArray(idx,value)){
                     rc.writeSharedArray(idx, value);
+
+                    //yeet
                 }
                 return;
             }
