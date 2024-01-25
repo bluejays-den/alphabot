@@ -59,7 +59,13 @@ public class RobotPlayer {
             	if(rc.isSpawned()) {
             	   //check round num and call setupt / main phase logic
             	   int round = rc.getRoundNum();
-            	   if(round <= GameConstants.SETUP_ROUNDS+3) Setup.runSetup(rc);
+            	   if(round <= GameConstants.SETUP_ROUNDS) {
+                    if (round == 1){
+                        Setup.writeWall(rc);
+                    }
+                   
+                    Setup.runSetup(rc);
+                   }
             	   else {
                     if (Defender.determineDefender(rc)){
                         Defender.initPatrol(rc);
