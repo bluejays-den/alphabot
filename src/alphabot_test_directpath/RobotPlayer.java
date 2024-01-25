@@ -39,14 +39,14 @@ public class RobotPlayer {
             		trySpawn(rc, new MapLocation(1,2));
             		ducknum = 1;
             		rc.writeSharedArray(0, 1);
-            		Pathfind.resetBug();
+            		Pathfind.resetBugOne();
             	}
 
             	if(rc.readSharedArray(0) == 1 && !rc.isSpawned()) {
             		trySpawn(rc, new MapLocation(14,0));
             		ducknum = 2;
             		rc.writeSharedArray(0, 2);
-            		Pathfind.resetBug();
+            		Pathfind.resetBugOne();
 
 
             	}
@@ -55,7 +55,7 @@ public class RobotPlayer {
             		trySpawn(rc, new MapLocation(28,2));
             		ducknum = 3;
             		rc.writeSharedArray(0, 3);
-            		Pathfind.resetBug();
+            		Pathfind.resetBugOne();
 
             	}
 

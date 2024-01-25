@@ -50,13 +50,7 @@ public class Pathfind {
 	}
 
 
-	public static void moveTowardsGreedy(RobotController rc, MapLocation loc) throws GameActionException{
-		
-	}
 
-	public static int otherDistance(MapLocation m1, MapLocation m2){
-		return (Math.max(Math.abs(m1.x-m2.x),Math.abs(m1.y-m2.y)));
-	}
 	
 	public static void explore(RobotController rc) throws GameActionException{
 		//try to move towards crumbs, otherwise move in current direction 
@@ -75,21 +69,18 @@ public class Pathfind {
 			}
 		}
 	}
+	
+	//BUG NAV TWO
 	private static int bugState = 0;
-	private static MapLocation closestObstacle = null;
-	private static int closestObstacleDist = 10000;
-	private static Direction bugDir = null;
-	public static void resetBug() {
-		bugState = 0;
-		closestObstacle = null;
-		closestObstacleDist = 10000;
-		bugDir = null;
-	}
 	private static HashSet<MapLocation> line = null;
 	private static MapLocation prevDest = null;
 	private static int obstacleStartDist = 0;
-	
-	
+	public static void resetBugTwo() {
+		bugState = 0;
+		HashSet<MapLocation> line = null;
+		MapLocation prevDest = null;
+		obstacleStartDist = 0;
+	}
 	public static void bugNavTwo(RobotController rc, MapLocation destination) throws GameActionException{
 		if(!destination.equals(prevDest)) {
 			prevDest = destination;
@@ -126,9 +117,18 @@ public class Pathfind {
 			}
 		}
 	}
-
 	
-	
+	//BUG NAV ONE
+	//	private static int bugState = 0;
+	private static MapLocation closestObstacle = null;
+	private static int closestObstacleDist = 10000;
+	private static Direction bugDir = null;
+	public static void resetBugOne() {
+		bugState = 0;
+		closestObstacle = null;
+		closestObstacleDist = 10000;
+		bugDir = null;
+	}
 	public static void bugNavOne(RobotController rc, MapLocation destination) throws GameActionException{
 		if(bugState == 0) {
 			rc.setIndicatorString("bugState = 0");

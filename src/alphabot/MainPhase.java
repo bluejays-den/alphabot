@@ -4,6 +4,7 @@ import java.util.*;
 import battlecode.common.*;
 
 public class MainPhase{
+	private static MapLocation spawnFirst = null;
 	
 	public static void runMainPhase(RobotController rc) throws GameActionException {
 		//try to buy action and capturing upgrades
@@ -12,8 +13,8 @@ public class MainPhase{
 		} if(rc.canBuyGlobal(GlobalUpgrade.HEALING)) {
 			rc.buyGlobal(GlobalUpgrade.HEALING);
 		}
-		
-		
+
+
 		//attack enemies, prioitizing enemies that have your flag
 		RobotInfo[] nearbyEnemies = rc.senseNearbyRobots(-1 , rc.getTeam().opponent());
 		RobotInfo[] nearbyFriends = rc.senseNearbyRobots(-1 , rc.getTeam());
@@ -75,14 +76,15 @@ public class MainPhase{
 			if(closestFlag != null) {
 				Pathfind.bugNavZero(rc, closestFlag);
 				if(rc.canPickupFlag(closestFlag)) rc.pickupFlag(closestFlag);
+				MapLocation[] spawnLocs = rc.getAllySpawnLocations();
+				spawnFirst = findClosestLocation(rc.getLocation(),Arrays.asList(spawnLocs));
+				
 			}
 			//if there is no flag to capture, explore randomly
 			Pathfind.explore(rc);
 		} else {
 			//if we have flag, move towards closest allyl spawn zone
-			MapLocation[] spawnLocs = rc.getAllySpawnLocations();
-			MapLocation closestSpawn = findClosestLocation(rc.getLocation(),Arrays.asList(spawnLocs));
-			Pathfind.bugNavZero(rc, closestSpawn);
+			Pathfind.bugNavTwo(rc, spawnFirst);
 		}
 	}
 	
