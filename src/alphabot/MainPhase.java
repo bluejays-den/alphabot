@@ -5,8 +5,10 @@ import battlecode.common.*;
 
 public class MainPhase{
 	private static MapLocation spawnFirst = null;
+	static int[] flagIDs; //0 0 0
 	
 	public static void runMainPhase(RobotController rc) throws GameActionException {
+		flagIDs = new int[6];
 		//try to buy action and capturing upgrades
 		if(rc.canBuyGlobal(GlobalUpgrade.ACTION)) {
 			rc.buyGlobal(GlobalUpgrade.ACTION);
@@ -14,61 +16,55 @@ public class MainPhase{
 			rc.buyGlobal(GlobalUpgrade.HEALING);
 		}
 		boolean left = true;
-
+		if (RobotPlayer.personalID == 0){
+			for (int i = 0; i < 64; i++){
+				Communication.setUnupdated(rc, i);
+			}
+		}
 
 		//attack enemies, prioitizing enemies that have your flag
 		RobotInfo[] nearbyEnemies = rc.senseNearbyRobots(-1 , rc.getTeam().opponent());
-		RobotInfo[] nearbyFriends = rc.senseNearbyRobots(-1 , rc.getTeam());
-		
-		ArrayList<MapLocation> enemyLocs = new ArrayList<>();
-		for(RobotInfo enemy: nearbyEnemies) {
-			//dont bother the ducks running back with their flags
-			//if(!flag.isPickedUp()) flagLocs.add(flag.getLocation());
-			enemyLocs.add(enemy.getLocation());
-		}
-
-		
 		for(RobotInfo robot : nearbyEnemies) {
 			if(robot.hasFlag()) {
 				Pathfind.bugNavZero(rc,robot.getLocation());
 				if(rc.canAttack(robot.getLocation())) rc.attack(robot.getLocation());
 			}
 		}
-		
 		for(RobotInfo robot: nearbyEnemies) {
-			Pathfind.bugNavZero(rc,robot.getLocation());
 			if(rc.canAttack(robot.getLocation())) rc.attack(robot.getLocation());
 		}
-		
+		Communication.updateEnemyInfo(rc, rc.getLocation(), nearbyEnemies.length);
+
 		//try to heal friendly robots
 		for(RobotInfo robot: rc.senseNearbyRobots(-1, rc.getTeam())){
 			if(rc.canHeal(robot.getLocation())) rc.heal(robot.getLocation());
 		}
-		
+
+		FlagInfo[] allFlags = rc.senseNearbyFlags(-1);
+		for(FlagInfo flag : allFlags){
+			int flagID = flag.getID();
+			int idx = flagIDToIdx(rc, flagID);
+			Communication.updateFlagInfo(rc, flag.getLocation(), flag.isPickedUp(), flag.getTeam(), idx);
+
+		}
 		
 		if(!rc.hasFlag()) {
-//			for(RobotInfo robot : nearbyFriends) {
-//				if(robot.hasFlag()) {
-//					Pathfind.bugNavZero(rc , findClosestLocation(rc.getLocation(), enemyLocs));
-//					if(rc.canAttack(robot.getLocation())) rc.attack(robot.getLocation());
-//				}
-//			}
-
-			
-			
-			
 			//if we dont have a flag, find closest enemy flag (including broadcast locations)
 			ArrayList<MapLocation> flagLocs = new ArrayList<>();
 			FlagInfo[] enemyFlags = rc.senseNearbyFlags(-1, rc.getTeam().opponent());
 			for(FlagInfo flag: enemyFlags) {
-				//dont bother the ducks running back with their flags
-				//if(!flag.isPickedUp()) flagLocs.add(flag.getLocation());
 				flagLocs.add(flag.getLocation());
 			}
-			
 			if(flagLocs.size() == 0) {
-				MapLocation[] broadcastLocs = rc.senseBroadcastFlagLocations();
-				for(MapLocation flagLoc : broadcastLocs) flagLocs.add(flagLoc);
+				for (int i = 0; i <= Communication.LAST_FLAG_IDX; i++){
+					if (Communication.getTeam(rc, i) == rc.getTeam().opponent() && Communication.getIfUpdated(rc,i)){
+						flagLocs.add(Communication.getLocation(rc, i));
+					}
+				}
+				if(flagLocs.size() == 0){
+					MapLocation[] broadcastLocs = rc.senseBroadcastFlagLocations();
+					for(MapLocation flagLoc : broadcastLocs) flagLocs.add(flagLoc);
+				}
 			}
 			
 			//if we found a closest enemy flag, move towards and try to pick it up
@@ -90,7 +86,21 @@ public class MainPhase{
 			Pathfind.bugNavTwo(rc, spawnFirst, left);
 		}
 	}
-	
+
+
+	public static int flagIDToIdx(RobotController rc, int flagID){
+		for(int i = 0; i < flagIDs.length; i++){
+			if (flagIDs[i] == 0) {
+				flagIDs[i] = flagID;
+				return i;
+			} else if (flagIDs[i] == flagID){
+				return i;
+			}
+			else continue;
+		}
+		return 0;
+	}
+
 	public static boolean isLeft(RobotController rc, MapLocation destination) {
 		return (destination.x - rc.getLocation().x)*(rc.getMapHeight()/2 - rc.getLocation().y) - (destination.y - rc.getLocation().y)*(rc.getMapWidth()/2 - rc.getLocation().x) > 0;
 	}

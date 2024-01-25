@@ -33,7 +33,7 @@ public class RobotPlayer {
     private int bugState = 0;
     private MapLocation closestObstacle = null;
     private int closestObstacleDistance = 10000;
-    
+    public static int personalID = 0;
     
     @SuppressWarnings("unused")
     public static void run(RobotController rc) throws GameActionException {
@@ -41,7 +41,12 @@ public class RobotPlayer {
     	
         while (true) {
             try {
-            	//spawn in one bot first to better see bot behavior
+                if (rc.canWriteSharedArray(0,0)){
+                    personalID = rc.readSharedArray(63);
+                    rc.writeSharedArray(63,personalID + 1);
+                }
+
+                //spawn in one bot first to better see bot behavior
             	if(rc.readSharedArray(0) == 0) {
             		rc.writeSharedArray(0, rc.getID());
             	}
