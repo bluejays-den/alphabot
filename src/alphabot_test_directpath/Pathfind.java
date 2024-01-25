@@ -9,7 +9,7 @@ public class Pathfind {
 	
 	public static MapLocation lastLoc;
 	public static boolean stuck = false;
-
+	public static MapLocation mapCenter = null;
 	
 	public static void moveTowards(RobotController rc, MapLocation loc) throws GameActionException {
 		//if can move towards location, move towards location
@@ -65,6 +65,7 @@ public class Pathfind {
 			if(direction != null && rc.canMove(direction)) rc.move(direction);
 			else {
 				direction = Direction.allDirections()[RobotPlayer.random.nextInt(8)];
+				if(rc.canFill(rc.getLocation().add(direction))) rc.fill(rc.getLocation().add(direction));
 				if(rc.canMove(direction)) rc.move(direction);
 			}
 		}
@@ -82,6 +83,14 @@ public class Pathfind {
 		obstacleStartDist = 0;
 	}
 	public static void bugNavTwo(RobotController rc, MapLocation destination) throws GameActionException{
+		boolean left = isLeft(rc, destination);
+		if(left) {
+			rc.setIndicatorString("turning left");
+
+		} else {
+			rc.setIndicatorString("turning right");
+
+		}
 		if(!destination.equals(prevDest)) {
 			prevDest = destination;
 			line = createLine(rc.getLocation(), destination);
@@ -100,23 +109,40 @@ public class Pathfind {
 				obstacleStartDist = rc.getLocation().distanceSquaredTo(destination);
 				bugDir = rc.getLocation().directionTo(destination);
 			}
-		} else {			
+		} else {
 			if(line.contains(rc.getLocation()) && rc.getLocation().distanceSquaredTo(destination) < obstacleStartDist) {
 				bugState = 0;
 			}
-			
 			for(int i = 0; i < 9; i++) {
 				if(rc.canMove(bugDir)) {
 					rc.move(bugDir);
-					bugDir = bugDir.rotateRight();
-					bugDir = bugDir.rotateRight();
+					if(left) {
+						bugDir = bugDir.rotateRight();
+						bugDir = bugDir.rotateRight();
+					}else {
+						bugDir = bugDir.rotateLeft();
+						bugDir = bugDir.rotateLeft();
+					}
+					
 					break;
 				} else {
-					bugDir = bugDir.rotateLeft();
+					if(left) {
+						bugDir = bugDir.rotateLeft();
+					} else {
+						bugDir = bugDir.rotateRight();
+					}
 				}
 			}
 		}
 	}
+	
+	
+	public static boolean isLeft(RobotController rc, MapLocation destination) {
+		return (destination.x - rc.getLocation().x)*(rc.getMapHeight()/2 - rc.getLocation().y) - (destination.y - rc.getLocation().y)*(rc.getMapWidth()/2 - rc.getLocation().x) > 0;
+	}
+
+	
+	
 	
 	//BUG NAV ONE
 	//	private static int bugState = 0;
@@ -130,6 +156,7 @@ public class Pathfind {
 		bugDir = null;
 	}
 	public static void bugNavOne(RobotController rc, MapLocation destination) throws GameActionException{
+		mapCenter = new MapLocation(rc.getMapWidth(),rc.getMapHeight());
 		if(bugState == 0) {
 			rc.setIndicatorString("bugState = 0");
 			bugDir = rc.getLocation().directionTo(destination);
@@ -142,7 +169,6 @@ public class Pathfind {
 				closestObstacleDist = 10000;
 			}
 		} else {
-			rc.setIndicatorString("bugState = 1");
 			if(rc.getLocation().equals(closestObstacle)) {
 				bugState = 0;
 				rc.setIndicatorString("found closest");
