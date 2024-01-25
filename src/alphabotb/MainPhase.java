@@ -1,4 +1,4 @@
-package alphabotv3;
+package alphabotb;
 
 import java.util.*;
 import battlecode.common.*;
@@ -12,30 +12,29 @@ public class MainPhase{
 		} if(rc.canBuyGlobal(GlobalUpgrade.ACTION)) {
 			rc.buyGlobal(GlobalUpgrade.ACTION);
 		}
-
 		
-		if ((RobotPlayer.turnCount - Pathfind.turnJustHadFlag > 2) && Pathfind.justHadFlag){
-			Pathfind.justHadFlag = false;
-		}
-		
-		FlagInfo[] nearbyEnemyFlags = rc.senseNearbyFlags(1, rc.getTeam().opponent());
-		for (FlagInfo i: nearbyEnemyFlags){
-			if ((rc.canPickupFlag(i.getLocation()) && !i.isPickedUp()) && !Pathfind.justHadFlag){
-				rc.pickupFlag(i.getLocation());
-				Pathfind.justHadFlag = false;
-			}
-		}
 		
 		//attack enemies, prioitizing enemies that have your flag
 		RobotInfo[] nearbyEnemies = rc.senseNearbyRobots(-1 , rc.getTeam().opponent());
+		RobotInfo[] nearbyFriends = rc.senseNearbyRobots(-1 , rc.getTeam());
+		
+		ArrayList<MapLocation> enemyLocs = new ArrayList<>();
+		for(RobotInfo enemy: nearbyEnemies) {
+			//dont bother the ducks running back with their flags
+			//if(!flag.isPickedUp()) flagLocs.add(flag.getLocation());
+			enemyLocs.add(enemy.getLocation());
+		}
+
+		
 		for(RobotInfo robot : nearbyEnemies) {
 			if(robot.hasFlag()) {
-				Pathfind.moveTowards(rc,robot.getLocation());
+				Pathfind.bugNavZero(rc,robot.getLocation());
 				if(rc.canAttack(robot.getLocation())) rc.attack(robot.getLocation());
 			}
 		}
 		
 		for(RobotInfo robot: nearbyEnemies) {
+			Pathfind.bugNavZero(rc,robot.getLocation());
 			if(rc.canAttack(robot.getLocation())) rc.attack(robot.getLocation());
 		}
 		
@@ -46,7 +45,16 @@ public class MainPhase{
 		
 		
 		if(!rc.hasFlag()) {
+			for(RobotInfo robot : nearbyFriends) {
+				if(robot.hasFlag()) {
+					Pathfind.bugNavZero(rc , findClosestLocation(rc.getLocation(), enemyLocs));
+					if(rc.canAttack(robot.getLocation())) rc.attack(robot.getLocation());
+				}
+			}
 
+			
+			
+			
 			//if we dont have a flag, find closest enemy flag (including broadcast locations)
 			ArrayList<MapLocation> flagLocs = new ArrayList<>();
 			FlagInfo[] enemyFlags = rc.senseNearbyFlags(-1, rc.getTeam().opponent());
@@ -54,8 +62,8 @@ public class MainPhase{
 				//dont bother the ducks running back with their flags
 				//if(!flag.isPickedUp()) flagLocs.add(flag.getLocation());
 				flagLocs.add(flag.getLocation());
-
 			}
+			
 			if(flagLocs.size() == 0) {
 				MapLocation[] broadcastLocs = rc.senseBroadcastFlagLocations();
 				for(MapLocation flagLoc : broadcastLocs) flagLocs.add(flagLoc);
@@ -63,23 +71,23 @@ public class MainPhase{
 			
 			//if we found a closest enemy flag, move towards and try to pick it up
 			MapLocation closestFlag = findClosestLocation(rc.getLocation(), flagLocs);
-			if(closestFlag != null && !Pathfind.justHadFlag) {
-				Pathfind.moveTowards(rc, closestFlag);
-				if(rc.canPickupFlag(closestFlag)) {
-					rc.pickupFlag(closestFlag);
-
-				}
-			}
 			
+			if(closestFlag != null) {
+				Pathfind.bugNavZero(rc, closestFlag);
+				if(rc.canPickupFlag(closestFlag)) rc.pickupFlag(closestFlag);
+			}
 			//if there is no flag to capture, explore randomly
 			Pathfind.explore(rc);
-			
 		} else {
 			//if we have flag, move towards closest allyl spawn zone
 			MapLocation[] spawnLocs = rc.getAllySpawnLocations();
 			MapLocation closestSpawn = findClosestLocation(rc.getLocation(),Arrays.asList(spawnLocs));
-			Pathfind.moveTowardsWithFlag(rc, closestSpawn);
+			Pathfind.bugNavZero(rc, closestSpawn);
 		}
+	}
+
+	public static void runMainPhaseDefense(RobotController rc) throws GameActionException{
+		Defender.runDefender(rc);
 	}
 	
 	

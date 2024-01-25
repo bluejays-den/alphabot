@@ -2,7 +2,9 @@
 
 package alphabot;
 
+
 import java.util.*;
+
 
 import battlecode.common.*;
 
@@ -82,6 +84,18 @@ public class RobotPlayer {
     	for(MapLocation loc: locations) {
     		if(rc.canSpawn(loc)) {
     			rc.spawn(loc);
+    			break;
+    		}
+    	}
+    }
+
+    private static void trySpawnRandom(RobotController rc) throws GameActionException{
+    	MapLocation[] locations = rc.getAllySpawnLocations();
+    	while (!rc.isSpawned()){
+            int randSpawn = random.nextInt();
+            randSpawn = randSpawn % locations.length;
+    		if(rc.canSpawn(locations[randSpawn])) {
+    			rc.spawn(locations[randSpawn]);
     			break;
     		}
     	}

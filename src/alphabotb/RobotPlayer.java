@@ -1,8 +1,10 @@
 //THIS IS MINE
 
-package alphabotv3;
+package alphabotb;
+
 
 import java.util.*;
+
 
 import battlecode.common.*;
 
@@ -27,6 +29,11 @@ public class RobotPlayer {
         Direction.NORTHWEST,
     };
     
+    //variables for bugNavOne
+    private int bugState = 0;
+    private MapLocation closestObstacle = null;
+    private int closestObstacleDistance = 10000;
+    
     
     @SuppressWarnings("unused")
     public static void run(RobotController rc) throws GameActionException {
@@ -34,14 +41,38 @@ public class RobotPlayer {
     	
         while (true) {
             try {
+            	//spawn in one bot first to better see bot behavior
+            	if(rc.readSharedArray(0) == 0) {
+            		rc.writeSharedArray(0, rc.getID());
+            	}
+            	if(rc.readSharedArray(0) == rc.getID()) trySpawn(rc);
+            	
             	if(random == null) random = new Random(rc.getID());
             	
-               trySpawn(rc);
-               if(rc.isSpawned()) {
+            	if(!rc.isSpawned()) {
+            		Pathfind.resetBug();
+                    turnCount = 0;
+                    Defender.isDefender = false;
+            	}
+            	//regular spawn comment out if want to test one duck
+            	trySpawnRandom(rc);
+            	if(rc.isSpawned()) {
             	   //check round num and call setupt / main phase logic
             	   int round = rc.getRoundNum();
-            	   if(round <= GameConstants.SETUP_ROUNDS) Setup.runSetup(rc);
-            	   else MainPhase.runMainPhase(rc);
+            	   if(round <= GameConstants.SETUP_ROUNDS+3) Setup.runSetup(rc);
+            	   else {
+                    if (Defender.determineDefender(rc)){
+                        Defender.initPatrol(rc);
+                        //Defender.isDefender = true;
+                    }
+                    if (Defender.isDefender){
+                        Defender.runDefender(rc);
+                    }
+                    else{
+                        MainPhase.runMainPhase(rc);
+                    }
+                    
+                   }
                }
             } catch (GameActionException e) {
             	//my fault cuh
@@ -54,6 +85,7 @@ public class RobotPlayer {
             } finally {
                 // Signify we've done everything we want to do, thereby ending our turn.
                 // This will make our code wait until the next turn, and then perform this loop again.
+                turnCount++;
                 Clock.yield();
             }
             // End of loop: go back to the top. Clock.yield() has ended, so it's time for another turn!
@@ -64,9 +96,18 @@ public class RobotPlayer {
     
     private static void trySpawn(RobotController rc) throws GameActionException{
     	MapLocation[] locations = rc.getAllySpawnLocations();
+    	for(MapLocation loc: locations) {
+    		if(rc.canSpawn(loc)) {
+    			rc.spawn(loc);
+    			break;
+    		}
+    	}
+    }
+
+    private static void trySpawnRandom(RobotController rc) throws GameActionException{
+    	MapLocation[] locations = rc.getAllySpawnLocations();
     	while (!rc.isSpawned()){
-            int randSpawn = random.nextInt();
-            randSpawn = randSpawn % locations.length;
+            int randSpawn = random.nextInt(locations.length);
     		if(rc.canSpawn(locations[randSpawn])) {
     			rc.spawn(locations[randSpawn]);
     			break;
