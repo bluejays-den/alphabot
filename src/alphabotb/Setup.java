@@ -8,12 +8,13 @@ public class Setup {
 	private static final int BUILD_TRAPS_ROUNDS = 145;
 	private static final int LINEUP_ROUNDS = 200;
 	public static MapLocation goToFlag;
+	public static boolean stop = false;
 	
 	public static void runSetup(RobotController rc) throws GameActionException {
 		
 		if(rc.getRoundNum() < EXPLORE_ROUNDS) {
 			Pathfind.explore(rc);
-		} else if (rc.getRoundNum() > 1000*BUILD_TRAPS_ROUNDS) {
+		} else if (rc.getRoundNum() < BUILD_TRAPS_ROUNDS) {
 			
 			
 			//search for nearby placed flag
@@ -47,7 +48,16 @@ public class Setup {
 		else{
 			//oppurtunity to save bytcode if use the shared array
 			if (rc.getRoundNum() == BUILD_TRAPS_ROUNDS + 1){
-				MapLocation[] enemyflags = rc.senseBroadcastFlagLocations();
+				MapLocation[] enemyflags = new MapLocation[3];
+				enemyflags[0] = decode(rc.readSharedArray(0));
+				enemyflags[1] = decode(rc.readSharedArray(1));
+				enemyflags[2] = decode(rc.readSharedArray(2));
+				for (int i = 0; i < 3; i++){
+					if (enemyflags[i].x == 0 && enemyflags[i].y==0){
+						MapLocation m = new MapLocation(59*rc.getMapWidth()/2,rc.getMapHeight()/2);
+						enemyflags[i]= m;
+					}
+				}
 				int minDist = rc.getLocation().distanceSquaredTo(enemyflags[0]);
 				MapLocation closestFlag = enemyflags[0];
 				if (rc.getLocation().distanceSquaredTo(enemyflags[1]) < minDist){
@@ -59,14 +69,50 @@ public class Setup {
 				}	
 				goToFlag = closestFlag;	
 			}
-			Pathfind.bugNavOne(rc, goToFlag);
+			//Add shit about if it seees the dam it stops.
+			if (stop){
+				MapInfo[] info = rc.senseNearbyMapInfos(2);
+				for (MapInfo i : info){
+					if (i.isDam()){
+						stop = true;
+						break;
+					}
+				}
+				Pathfind.bugNavZero(rc, goToFlag);
+			}
+			else{
+				
+				Pathfind.moveTowards(rc, goToFlag);
+			}
+			
+			
+
 			
 
 		}
 	}
 
-	public static void lineUp(RobotController rc) throws GameActionException{
-		//0 is NORTH SOUTH WALL
-		// 1 is EAST WEST WALL
+	public static void writeWall(RobotController rc) throws GameActionException{
+		FlagInfo[] flags = rc.senseNearbyFlags(2);
+		int xc = rc.getMapWidth()/2;
+		int yc = rc.getMapHeight()/2;
+		int enemyX = 2*xc - flags[0].getLocation().x;
+		int enemyY = 2*yc - flags[0].getLocation().y;
+		for (int i = 0; i < 3; i++){
+			int temp = rc.readSharedArray(i);
+			if (temp == 0){
+				if (rc.canWriteSharedArray(i,59*enemyX + enemyY)) rc.canWriteSharedArray(i,59*enemyX + enemyY);
+			}
+			if (Math.abs(temp/59-enemyX) <= 2 && Math.abs(temp%59-enemyY)<=2){
+				if (rc.canWriteSharedArray(i,59*enemyX + enemyY)) rc.canWriteSharedArray(i,59*enemyX + enemyY);
+			}
+		}
+	}
+
+	public static MapLocation decode( int message) throws GameActionException{
+		int x = message/59;
+		int y = message%59;
+		MapLocation ans = new MapLocation(x,y);
+		return ans;
 	}
 }
