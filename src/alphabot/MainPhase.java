@@ -4,16 +4,18 @@ import java.util.*;
 import battlecode.common.*;
 
 public class MainPhase{
+	private static MapLocation spawnFirst = null;
 	
 	public static void runMainPhase(RobotController rc) throws GameActionException {
 		//try to buy action and capturing upgrades
-		if(rc.canBuyGlobal(GlobalUpgrade.HEALING)) {
-			rc.buyGlobal(GlobalUpgrade.HEALING);
-		} if(rc.canBuyGlobal(GlobalUpgrade.ACTION)) {
+		if(rc.canBuyGlobal(GlobalUpgrade.ACTION)) {
 			rc.buyGlobal(GlobalUpgrade.ACTION);
+		} if(rc.canBuyGlobal(GlobalUpgrade.HEALING)) {
+			rc.buyGlobal(GlobalUpgrade.HEALING);
 		}
-		
-		
+		boolean left = true;
+
+
 		//attack enemies, prioitizing enemies that have your flag
 		RobotInfo[] nearbyEnemies = rc.senseNearbyRobots(-1 , rc.getTeam().opponent());
 		RobotInfo[] nearbyFriends = rc.senseNearbyRobots(-1 , rc.getTeam());
@@ -45,12 +47,12 @@ public class MainPhase{
 		
 		
 		if(!rc.hasFlag()) {
-			for(RobotInfo robot : nearbyFriends) {
-				if(robot.hasFlag()) {
-					Pathfind.bugNavZero(rc , findClosestLocation(rc.getLocation(), enemyLocs));
-					if(rc.canAttack(robot.getLocation())) rc.attack(robot.getLocation());
-				}
-			}
+//			for(RobotInfo robot : nearbyFriends) {
+//				if(robot.hasFlag()) {
+//					Pathfind.bugNavZero(rc , findClosestLocation(rc.getLocation(), enemyLocs));
+//					if(rc.canAttack(robot.getLocation())) rc.attack(robot.getLocation());
+//				}
+//			}
 
 			
 			
@@ -75,18 +77,24 @@ public class MainPhase{
 			if(closestFlag != null) {
 				Pathfind.bugNavZero(rc, closestFlag);
 				if(rc.canPickupFlag(closestFlag)) rc.pickupFlag(closestFlag);
+				MapLocation[] spawnLocs = rc.getAllySpawnLocations();
+				spawnFirst = findClosestLocation(rc.getLocation(),Arrays.asList(spawnLocs));
+				left = isLeft(rc, spawnFirst);
+
+				
 			}
 			//if there is no flag to capture, explore randomly
 			Pathfind.explore(rc);
 		} else {
 			//if we have flag, move towards closest allyl spawn zone
-			MapLocation[] spawnLocs = rc.getAllySpawnLocations();
-			MapLocation closestSpawn = findClosestLocation(rc.getLocation(),Arrays.asList(spawnLocs));
-			Pathfind.bugNavZero(rc, closestSpawn);
+			Pathfind.bugNavTwo(rc, spawnFirst, left);
 		}
 	}
 	
-	
+	public static boolean isLeft(RobotController rc, MapLocation destination) {
+		return (destination.x - rc.getLocation().x)*(rc.getMapHeight()/2 - rc.getLocation().y) - (destination.y - rc.getLocation().y)*(rc.getMapWidth()/2 - rc.getLocation().x) > 0;
+	}
+
 	
 	public static MapLocation findClosestLocation(MapLocation me, List<MapLocation> otherLocs) {
 		MapLocation closest = null;

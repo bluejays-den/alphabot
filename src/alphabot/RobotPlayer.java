@@ -50,7 +50,7 @@ public class RobotPlayer {
             	if(random == null) random = new Random(rc.getID());
             	
             	if(!rc.isSpawned()) {
-            		Pathfind.resetBug();
+            		Pathfind.resetBugTwo();
             	}
             	//regular spawn comment out if want to test one duck
             	trySpawn(rc);

@@ -1,4 +1,4 @@
-package alphabot;
+package alphabot_test_directpath;
 
 import battlecode.common.*;
 import java.util.*;
@@ -82,7 +82,8 @@ public class Pathfind {
 		MapLocation prevDest = null;
 		obstacleStartDist = 0;
 	}
-	public static void bugNavTwo(RobotController rc, MapLocation destination, boolean left) throws GameActionException{
+	public static void bugNavTwo(RobotController rc, MapLocation destination) throws GameActionException{
+		boolean left = isLeft(rc, destination);
 		if(left) {
 			rc.setIndicatorString("turning left");
 
