@@ -37,6 +37,8 @@ public class RobotPlayer {
 
     @SuppressWarnings("unused")
     public static void run(RobotController rc) throws GameActionException {
+        Util.init(rc);
+        tempPathfind.init(rc);
         while (true) {
             try {
                 //Creates ducks 0-49

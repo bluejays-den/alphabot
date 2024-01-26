@@ -28,7 +28,7 @@ public class MainPhase{
 		RobotInfo[] nearbyEnemies = rc.senseNearbyRobots(-1 , rc.getTeam().opponent());
 		for(RobotInfo robot : nearbyEnemies) {
 			if(robot.hasFlag()) {
-				Pathfind.bugNavZero(rc,robot.getLocation());
+				tempPathfind.move(robot.getLocation());
 				if(rc.canAttack(robot.getLocation())) rc.attack(robot.getLocation());
 			}
 		}
@@ -76,7 +76,7 @@ public class MainPhase{
 			MapLocation closestFlag = findClosestLocation(rc.getLocation(), flagLocs);
 			
 			if(closestFlag != null) {
-				Pathfind.bugNavZero(rc, closestFlag);
+				//tempPathfind.move(closestFlag);
 				if(rc.canPickupFlag(closestFlag)) rc.pickupFlag(closestFlag);
 				MapLocation[] spawnLocs = rc.getAllySpawnLocations();
 				spawnFirst = findClosestLocation(rc.getLocation(),Arrays.asList(spawnLocs));
@@ -86,7 +86,7 @@ public class MainPhase{
 			Pathfind.explore(rc);
 		} else {
 			//if we have flag, move towards closest ally spawn zone
-			Pathfind.bugNavTwo(rc, spawnFirst, left);
+			//tempPathfind.move(spawnFirst);
 		}
 	}
 
