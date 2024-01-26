@@ -76,7 +76,7 @@ public class MainPhase{
 			MapLocation closestFlag = findClosestLocation(rc.getLocation(), flagLocs);
 			
 			if(closestFlag != null) {
-				//tempPathfind.move(closestFlag);
+				tempPathfind.move(closestFlag);
 				if(rc.canPickupFlag(closestFlag)) rc.pickupFlag(closestFlag);
 				MapLocation[] spawnLocs = rc.getAllySpawnLocations();
 				spawnFirst = findClosestLocation(rc.getLocation(),Arrays.asList(spawnLocs));
@@ -86,7 +86,7 @@ public class MainPhase{
 			Pathfind.explore(rc);
 		} else {
 			//if we have flag, move towards closest ally spawn zone
-			//tempPathfind.move(spawnFirst);
+			tempPathfind.move(spawnFirst);
 		}
 	}
 

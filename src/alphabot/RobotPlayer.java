@@ -41,6 +41,7 @@ public class RobotPlayer {
         tempPathfind.init(rc);
         while (true) {
             try {
+                tempPathfind.initTurn();
                 //Creates ducks 0-49
                 if (personalID == -1){
                     personalID = rc.readSharedArray(63);
