@@ -13,7 +13,7 @@ public class Communication {
 
 
     public static void updateEnemyInfo(RobotController  rc, MapLocation loc, int numEnemies) throws GameActionException{
-        for (int idx = START_ENEMY_IDX; idx < LAST_ENEMY_IDX; idx++){
+        for (int idx = START_ENEMY_IDX; idx < LAST_ENEMY_IDX + numClusters; idx++){
             MapLocation enemyLoc = getLocation(rc, idx);
 
             if(enemyLoc.distanceSquaredTo(loc) <= ENEMY_CLUSTER_RADIUS_SQ){
@@ -41,8 +41,12 @@ public class Communication {
     //SHARED ARRAY: 64 INDCIES
     //first 6 indicies: flag infos
     //last index: used for giving robots a personal id
-    public static void updateFlagInfo(RobotController rc, MapLocation loc, boolean isCarried, Team team, int idx){
-        return;
+    public static void updateFlagInfo(RobotController rc, MapLocation loc, boolean isCarried, Team team, int idx) throws GameActionException{
+        int value = locationToInt(rc,loc) * 16 + teamToInt(team) * 4 + (isCarried ? 1 : 0) * 2 + 1;
+
+        if(rc.canWriteSharedArray(idx,value)){
+            rc.writeSharedArray(idx, value);
+        }
     }
 
     public static MapLocation getLocation(RobotController rc, int idx) throws GameActionException{
@@ -58,6 +62,10 @@ public class Communication {
         int teamNum = (value%4) >> 1;
         Team team = teamNum == 0 ? Team.A : Team.B;
         return team;
+    }
+
+    public static int teamToInt(Team team){
+        return team == Team.A ? 0 : 1;
     }
 
     public static void setUnupdated(RobotController rc, int idx) throws GameActionException{
