@@ -22,8 +22,6 @@ public class Communication {
 
                 if(rc.canWriteSharedArray(idx,value)){
                     rc.writeSharedArray(idx, value);
-
-                    //yeet
                 }
                 return;
             }
@@ -40,7 +38,7 @@ public class Communication {
 
     //SHARED ARRAY: 64 INDCIES
     //first 6 indicies: flag infos
-    //last index: used for giving robots a personal id
+    //last index: used for giving robots a personal id BUT after a few rounds can be repurposed
     public static void updateFlagInfo(RobotController rc, MapLocation loc, boolean isCarried, Team team, int idx) throws GameActionException{
         int value = locationToInt(rc,loc) * 16 + teamToInt(team) * 4 + (isCarried ? 1 : 0) * 2 + 1;
 
@@ -70,8 +68,8 @@ public class Communication {
 
     public static void setUnupdated(RobotController rc, int idx) throws GameActionException{
         int value = rc.readSharedArray(idx);
+        //sets rightmost bit as 0
         int newValue = value & ~1;
-
         if  (rc.canWriteSharedArray(idx,newValue)){
             rc.writeSharedArray(idx,newValue);
         }

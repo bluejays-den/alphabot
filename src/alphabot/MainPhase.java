@@ -16,13 +16,15 @@ public class MainPhase{
 			rc.buyGlobal(GlobalUpgrade.HEALING);
 		}
 		boolean left = true;
+
+		//player 0 resets first bit in comm array list
 		if (RobotPlayer.personalID == 0){
 			for (int i = 0; i < 64; i++){
 				Communication.setUnupdated(rc, i);
 			}
 		}
 
-		//attack enemies, prioitizing enemies that have your flag
+		//attack enemies, prioritize enemies that have your flag
 		RobotInfo[] nearbyEnemies = rc.senseNearbyRobots(-1 , rc.getTeam().opponent());
 		for(RobotInfo robot : nearbyEnemies) {
 			if(robot.hasFlag()) {
@@ -30,12 +32,15 @@ public class MainPhase{
 				if(rc.canAttack(robot.getLocation())) rc.attack(robot.getLocation());
 			}
 		}
+		//need separate for loop bc rc.attack is used up
 		for(RobotInfo robot: nearbyEnemies) {
 			if(rc.canAttack(robot.getLocation())) rc.attack(robot.getLocation());
 		}
-		Communication.updateEnemyInfo(rc, rc.getLocation(), nearbyEnemies.length);
+		//not ready to use this yet
+		//Communication.updateEnemyInfo(rc, rc.getLocation(), nearbyEnemies.length);
 
 		//try to heal friendly robots
+		//reminder to heal robot with the lowest hp
 		for(RobotInfo robot: rc.senseNearbyRobots(-1, rc.getTeam())){
 			if(rc.canHeal(robot.getLocation())) rc.heal(robot.getLocation());
 		}
@@ -45,7 +50,6 @@ public class MainPhase{
 			int flagID = flag.getID();
 			int idx = flagIDToIdx(rc, flagID);
 			Communication.updateFlagInfo(rc, flag.getLocation(), flag.isPickedUp(), flag.getTeam(), idx);
-
 		}
 		
 		if(!rc.hasFlag()) {
@@ -55,19 +59,20 @@ public class MainPhase{
 			for(FlagInfo flag: enemyFlags) {
 				flagLocs.add(flag.getLocation());
 			}
-			if(flagLocs.size() == 0) {
+			if(flagLocs.isEmpty()) {
 				for (int i = 0; i <= Communication.LAST_FLAG_IDX; i++){
 					if (Communication.getTeam(rc, i) == rc.getTeam().opponent() && Communication.getIfUpdated(rc,i)){
 						flagLocs.add(Communication.getLocation(rc, i));
 					}
 				}
-				if(flagLocs.size() == 0){
+				if(flagLocs.isEmpty()){
+					//maybe use broadcastLocs later for setup lineup
 					MapLocation[] broadcastLocs = rc.senseBroadcastFlagLocations();
 					for(MapLocation flagLoc : broadcastLocs) flagLocs.add(flagLoc);
 				}
 			}
 			
-			//if we found a closest enemy flag, move towards and try to pick it up
+			//if we found the closest enemy flag, move towards and try to pick it up
 			MapLocation closestFlag = findClosestLocation(rc.getLocation(), flagLocs);
 			
 			if(closestFlag != null) {
@@ -76,17 +81,14 @@ public class MainPhase{
 				MapLocation[] spawnLocs = rc.getAllySpawnLocations();
 				spawnFirst = findClosestLocation(rc.getLocation(),Arrays.asList(spawnLocs));
 				left = isLeft(rc, spawnFirst);
-
-				
 			}
 			//if there is no flag to capture, explore randomly
 			Pathfind.explore(rc);
 		} else {
-			//if we have flag, move towards closest allyl spawn zone
+			//if we have flag, move towards closest ally spawn zone
 			Pathfind.bugNavTwo(rc, spawnFirst, left);
 		}
 	}
-
 
 	public static int flagIDToIdx(RobotController rc, int flagID){
 		for(int i = 0; i < flagIDs.length; i++){

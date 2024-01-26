@@ -15,7 +15,8 @@ public class RobotPlayer {
     static int turnCount = 0;
     //We will use this RNG to make some random moves. 
     public static Random random = null;
-   
+    public static int personalID = -1;
+
 
     // Array containing all the possible movement directions.
     static final Direction[] directions = {
@@ -33,32 +34,23 @@ public class RobotPlayer {
     private int bugState = 0;
     private MapLocation closestObstacle = null;
     private int closestObstacleDistance = 10000;
-    public static int personalID = 0;
-    
+
     @SuppressWarnings("unused")
     public static void run(RobotController rc) throws GameActionException {
-
-    	
         while (true) {
             try {
-                if (rc.canWriteSharedArray(0,0)){
+                //Creates ducks 0-49
+                if (personalID == -1){
                     personalID = rc.readSharedArray(63);
                     rc.writeSharedArray(63,personalID + 1);
                 }
 
-                //spawn in one bot first to better see bot behavior
-            	if(rc.readSharedArray(0) == 0) {
-            		rc.writeSharedArray(0, rc.getID());
-            	}
-            	if(rc.readSharedArray(0) == rc.getID()) trySpawn(rc);
-            	
             	if(random == null) random = new Random(rc.getID());
             	
             	if(!rc.isSpawned()) {
             		Pathfind.resetBugTwo();
-            	}
-            	//regular spawn comment out if want to test one duck
-            	trySpawn(rc);
+                    trySpawnRandom(rc);
+                }
             	if(rc.isSpawned()) {
             	   //check round num and call setupt / main phase logic
             	   int round = rc.getRoundNum();
@@ -94,20 +86,14 @@ public class RobotPlayer {
     	}
     }
 
+
     private static void trySpawnRandom(RobotController rc) throws GameActionException{
     	MapLocation[] locations = rc.getAllySpawnLocations();
-    	while (!rc.isSpawned()){
-            int randSpawn = random.nextInt();
-            randSpawn = randSpawn % locations.length;
-    		if(rc.canSpawn(locations[randSpawn])) {
-    			rc.spawn(locations[randSpawn]);
-    			break;
-    		}
-    	}
+        int randSpawn = Math.abs(random.nextInt()) % locations.length;
+        if(rc.canSpawn(locations[randSpawn])) {
+            rc.spawn(locations[randSpawn]);
+        }
     }
-    
-    
-    
     
     public static void updateEnemyRobots(RobotController rc) throws GameActionException{
         // Sensing methods can be passed in a radius of -1 to automatically 

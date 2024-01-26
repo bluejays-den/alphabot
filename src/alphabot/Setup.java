@@ -11,11 +11,6 @@ public class Setup {
 		if(rc.getRoundNum() < EXPLORE_ROUNDS) {
 			Pathfind.explore(rc);
 		} else {
-			//try to place flag if it is far enough away from other flags
-			if(rc.senseLegalStartingFlagPlacement(rc.getLocation())){
-				if(rc.canDropFlag(rc.getLocation())) rc.dropFlag(rc.getLocation());
-			}
-			
 			//search for nearby placed flag
 			FlagInfo[] flags = rc.senseNearbyFlags(-1, rc.getTeam());
 			
