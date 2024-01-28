@@ -57,7 +57,8 @@ public class RobotPlayer {
             	if(rc.isSpawned()) {
             	   //check round num and call setupt / main phase logic
             	   int round = rc.getRoundNum();
-            	   if(round <= GameConstants.SETUP_ROUNDS) Setup.runSetup(rc);
+            	   if(round <= 150) Setup.runSetup(rc);
+                   else if(rc.getRoundNum() <= GameConstants.SETUP_ROUNDS) Setup.lineUp(rc);
             	   else MainPhase.runMainPhase(rc);
                }
             } catch (GameActionException e) {

@@ -2,12 +2,13 @@ package alphabot;
 
 import battlecode.common.*;
 
+import java.util.ArrayList;
+
 public class Setup {
 	
 	private static final int EXPLORE_ROUNDS = 150;
 	
 	public static void runSetup(RobotController rc) throws GameActionException {
-		
 		if(rc.getRoundNum() < EXPLORE_ROUNDS) {
 			Pathfind.explore(rc);
 		} else {
@@ -27,12 +28,12 @@ public class Setup {
 				Pathfind.moveTowards(rc, target.getLocation());
 				
 				if(rc.getLocation().distanceSquaredTo(target.getLocation())<9) {
-					if(rc.canBuild(TrapType.EXPLOSIVE, rc.getLocation())) {
-						rc.build(TrapType.EXPLOSIVE, rc.getLocation());
-					} else {
-						//cant build trap then make random water around our flag
-						MapLocation water = rc.getLocation().add(Direction.allDirections()[RobotPlayer.random.nextInt(8)]);
-					}
+//					if(rc.canBuild(TrapType.EXPLOSIVE, rc.getLocation())) {
+//						rc.build(TrapType.EXPLOSIVE, rc.getLocation());
+//					} else {
+//						//cant build trap then make random water around our flag
+//						MapLocation water = rc.getLocation().add(Direction.allDirections()[RobotPlayer.random.nextInt(8)]);
+//					}
 						
 				}
 			}
@@ -40,4 +41,17 @@ public class Setup {
 			
 		}
 	}
+
+	public static void lineUp(RobotController rc) throws GameActionException {
+		MapLocation[] lineUpFlags = rc.senseBroadcastFlagLocations();
+		ArrayList<MapLocation> flagLocs = new ArrayList<>();
+		for(MapLocation flagLoc : lineUpFlags){
+			flagLocs.add(flagLoc);
+		}
+		MapLocation closest = MainPhase.findClosestLocation(rc.getLocation(), flagLocs);
+		tempPathfind.move(closest);
+	}
+
+
+
 }
